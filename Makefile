@@ -102,6 +102,7 @@ LDFLAGS_DEBUG_false := -Xlinker --strip-all
 # LDFLAGS_STATIC_true := -static -static-libgcc -static-libstdc++
 LDFLAGS_STATIC_true := -static
 LDFLAGS_clang_nix := -lstdc++
+LDFLAGS_clang_win := -ladvapi32 -lshell32 -luser32
 LDFLAGS_gcc := -lstdc++
 
 LIBS := $()
