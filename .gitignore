@@ -1,0 +1,9 @@
+# NOTE: GLOBSTAR syntax [see `git help gitignore`]
+
+# ignore generated files
+/#build
+
+# ignore localized VSCode settings
+/.vscode/c_cpp_properties.json
+# ignore VSCode precompiled headers for IntelliSense
+/.vscode/ipch/
