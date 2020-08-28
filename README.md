@@ -13,7 +13,7 @@
 
 **Of course not!** However, not everyone agrees... One of Cmdow's many features allow the user to hide program windows which has led to 40% of anti-virus vendors classifying Cmdow as anything from a hacking tool to a trojan<sup>[&dagger;](#trojan)</sup>. On the other hand, 60% of anti-virus vendors regard Cmdow as completely safe.
 
-You can view the anti-virus scan results yourself. Download and extract the latest version of the Cmdow archive, then upload cmdow.exe to [VirusTotal](https://virustotal.com/). You'll end up at a page like this: 
+You can view the anti-virus scan results yourself. Download and extract the latest version of the Cmdow archive, then upload cmdow.exe to [VirusTotal](https://virustotal.com/). You'll end up at a page like this:
 [https://virustotal.com/en/file/767b877e735c425bf05c34683356abfde4070b092f17a4741ea5ac490611f3de/analysis/](https://virustotal.com/en/file/767b877e735c425bf05c34683356abfde4070b092f17a4741ea5ac490611f3de/analysis/) (note, the long hexadecimal string in the URL matches the [SHA256 checksum](https://en.wikipedia.org/wiki/Sha1sum) of cmdow.exe, v1.4.8 in this instance).
 
 Obviously, if you have any doubts about the safety of Cmdow then don't use it or audit the source code yourself. Auditing should be fairly straightforward as the code is self explanatory with liberal comments and there is no assembly or binary blobs. It compiles without errors or warnings using the free [Code::Blocks](http://www.codeblocks.org/) IDE. There is even a Code::Blocks project file ([cmdow.cbp](https://github.com/ritchielawrence/cmdow/blob/master/cmdow.cbp)) included in the Cmdow download.
@@ -99,7 +99,7 @@ This form of CMDOW performs a single action typically affecting all windows.
   /AT     Similar to the keyboard shortcut Alt+Tab but instead of activating
           the next highest window in the Z order, /AT activates the window at
           the bottom of the Z order. Consequently, /AT can be used to activate
-          every window on the taskbar sequentially. To prevent windows on the 
+          every window on the taskbar sequentially. To prevent windows on the
           taskbar from flashing, set the following registry value to zero:-
           HKCU\Control Panel\Desktop\ForegroundLockTimeout.
   /FS     Switch the window running this process into full screen mode.

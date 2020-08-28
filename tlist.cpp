@@ -11,9 +11,9 @@
 #define UNKNOWN_TASK        "Unknown"
 
 struct TLIST {
-    DWORD			dwProcessId;
-    CHAR			ProcessName[PROCESS_SIZE];
-	struct TLIST	*next;
+    DWORD           dwProcessId;
+    CHAR            ProcessName[PROCESS_SIZE];
+    struct TLIST    *next;
 };
 
 int GetTaskList(struct TLIST *tlist)
@@ -26,7 +26,7 @@ int GetTaskList(struct TLIST *tlist)
     CHAR                         szSubKey[1024];
     LANGID                       lid;
     LPSTR                        p;
-    LPSTR						 p2;
+    LPSTR                        p2;
     PPERF_DATA_BLOCK             pPerf;
     PPERF_OBJECT_TYPE            pObj;
     PPERF_INSTANCE_DEFINITION    pInst;
@@ -39,10 +39,10 @@ int GetTaskList(struct TLIST *tlist)
     DWORD                        dwNumTasks;
 
     // this returns "009" on my system
-	lid = MAKELANGID( LANG_ENGLISH, SUBLANG_NEUTRAL );
+    lid = MAKELANGID( LANG_ENGLISH, SUBLANG_NEUTRAL );
     wsprintf( szSubKey, "%s\\%03x", REGKEY_PERF, lid );
 
-	// Get handle to "khlm\sw\ms\winnt\cv\perflib\009"
+    // Get handle to "khlm\sw\ms\winnt\cv\perflib\009"
     rc = RegOpenKeyEx( HKEY_LOCAL_MACHINE,
                        szSubKey,
                        0,
@@ -61,7 +61,7 @@ int GetTaskList(struct TLIST *tlist)
     // allocate the counter names buffer
     buf = (LPBYTE) malloc(dwSize);
 
-	if (buf == NULL) goto exit;
+    if (buf == NULL) goto exit;
 
     memset( (void *) buf, 0, dwSize );
 
@@ -74,7 +74,7 @@ int GetTaskList(struct TLIST *tlist)
 
     p = (char *) buf;
 
-	dwProcessIdTitle = 0; // added by me as dwProcessIdTitle may be used without init
+    dwProcessIdTitle = 0; // added by me as dwProcessIdTitle may be used without init
 
     while (*p) {
         if (p > (char *) buf) {
@@ -121,7 +121,7 @@ int GetTaskList(struct TLIST *tlist)
         }
     }
 
-	dwProcessIdCounter = 0; /* added by me as var could be used without init */
+    dwProcessIdCounter = 0; /* added by me as var could be used without init */
 
     pObj = (PPERF_OBJECT_TYPE) ((DWORD)pPerf + pPerf->HeaderLength);
     pCounterDef = (PPERF_COUNTER_DEFINITION) ((DWORD)pObj + pObj->HeaderLength);
@@ -141,53 +141,53 @@ int GetTaskList(struct TLIST *tlist)
 
         p = (LPSTR) ((DWORD)pInst + pInst->NameOffset);
         rc = WideCharToMultiByte( CP_ACP, 0, (LPCWSTR)p, -1, szProcessName,
-			sizeof(szProcessName), NULL, NULL);
+            sizeof(szProcessName), NULL, NULL);
 
         if (!rc) {
             lstrcpy( tlist->ProcessName, UNKNOWN_TASK );
         }
 
-		// load process name into tlist
-		lstrcpy( tlist->ProcessName, szProcessName );
+        // load process name into tlist
+        lstrcpy( tlist->ProcessName, szProcessName );
 
-		// load Pid into tlist
-	    pCounter = (PPERF_COUNTER_BLOCK) ((DWORD)pInst + pInst->ByteLength);
+        // load Pid into tlist
+        pCounter = (PPERF_COUNTER_BLOCK) ((DWORD)pInst + pInst->ByteLength);
         tlist->dwProcessId = *((LPDWORD) ((DWORD)pCounter + dwProcessIdCounter));
         pInst = (PPERF_INSTANCE_DEFINITION) ((DWORD)pCounter + pCounter->ByteLength);
 
-		// create a new tlist record
-		tlist->next = (struct TLIST *) HeapAlloc(GetProcessHeap(), 0, sizeof(struct TLIST));
-		if(!(tlist->next)) return(1);
+        // create a new tlist record
+        tlist->next = (struct TLIST *) HeapAlloc(GetProcessHeap(), 0, sizeof(struct TLIST));
+        if(!(tlist->next)) return(1);
 
-		tlist = tlist->next; // point to the new record
-		tlist->next = NULL; // in case this is last record, null serves as a flag
-		// note, last record of tlist will be undefined except next which is NULL
+        tlist = tlist->next; // point to the new record
+        tlist->next = NULL; // in case this is last record, null serves as a flag
+        // note, last record of tlist will be undefined except next which is NULL
     }
-	return(0);
+    return(0);
 exit:
     if(buf) free(buf);
     RegCloseKey( hKeyNames );
     RegCloseKey( HKEY_PERFORMANCE_DATA );
-	return(1);
+    return(1);
 }
 
 char *GetImageName(long pid)
 {
-	static int init;
-	static struct TLIST tlist;
-	struct TLIST *t;
-	static char Unknown[] = "Unknown";
+    static int init;
+    static struct TLIST tlist;
+    struct TLIST *t;
+    static char Unknown[] = "Unknown";
 
-	if(!init++) {
-		tlist.next = NULL;
-		if(GetTaskList(&tlist)) return NULL;
-		// build list of tasks
-	}
+    if(!init++) {
+        tlist.next = NULL;
+        if(GetTaskList(&tlist)) return NULL;
+        // build list of tasks
+    }
 
-	t = &tlist;
-	while(t->next) {
-		if(t->dwProcessId == (DWORD) pid) return t->ProcessName;
-		t = t->next;
-	}
-	return Unknown;
+    t = &tlist;
+    while(t->next) {
+        if(t->dwProcessId == (DWORD) pid) return t->ProcessName;
+        t = t->next;
+    }
+    return Unknown;
 }
