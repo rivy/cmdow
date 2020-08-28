@@ -175,7 +175,7 @@ LD_${CC_ID}_o := /out:
 
 O_${CC_ID} := obj
 
-LIBS := $()
+LIBS := advapi32.lib shell32.lib user32.lib
 endif ## `cl` (MSVC)
 
 ifeq (bcc32,${CC_ID})
