@@ -494,7 +494,7 @@ void RenWin(struct WLIST *w, struct ARGS *a)
     //
     // Build the commandline to rename this console window
     //
-    ltoa((long) a->myhwnd, buf, 16);
+    _ltoa((long) a->myhwnd, buf, 16);
 
     i = lstrlen(a->exename);
     i += lstrlen(" 0x");
