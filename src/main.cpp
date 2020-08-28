@@ -178,7 +178,7 @@ int main(int argc, char* argv[])
         w = wtlist.next;
         do {
             // only act on more than one window if the /DBM (DONTBLAMEME) switch is used
-            if(wcount & (!(args.actopts && DONTBLAMEME)) ) break;
+            if(wcount & (!(args.actopts & DONTBLAMEME)) ) break;
             if(args.tasks[0] != LST) wcount++; // keep track of windows acted upon, ignore listing a window
             i = 0;
             while(args.tasks[i]) {
