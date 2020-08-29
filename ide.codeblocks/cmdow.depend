@@ -1,0 +1,25 @@
+# depslib dependency file v1.0
+1598734353 source:c:\users\roy\onedrive\projects\cmdow\src\args.cpp
+	"header.h"
+
+1598734353 c:\users\roy\onedrive\projects\cmdow\src\header.h
+	<windows.h>
+	<stdio.h>
+	<stdlib.h>
+	<ctype.h>
+	<shellapi.h>
+	<winperf.h>
+	<conio.h>
+
+1598734353 source:c:\users\roy\onedrive\projects\cmdow\src\help.cpp
+	"header.h"
+
+1598734353 source:c:\users\roy\onedrive\projects\cmdow\src\main.cpp
+	"header.h"
+
+1598734353 source:c:\users\roy\onedrive\projects\cmdow\src\tlist.cpp
+	"header.h"
+
+1598734353 source:c:\users\roy\onedrive\projects\cmdow\src\wlist.cpp
+	"header.h"
+
