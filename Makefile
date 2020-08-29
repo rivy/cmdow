@@ -1,6 +1,6 @@
 # Makefile (C/C++; OOS-build support; gmake-form/style)
 # Cross-platform (bash/sh + CMD/PowerShell)
-# `bcc32`, `cl`, `clang`, `embcc32`, and `gcc` (defaults to `CC=gcc`)
+# `bcc32`, `cl`, `clang`, `embcc32`, and `gcc` (defaults to `CC=clang`)
 # GNU make (gmake) compatible; ref: <https://www.gnu.org/software/make/manual>
 # Copyright (C) 2020 ~ Roy Ivy III <rivy.dev@gmail.com>; MIT+Apache-2.0 license
 
@@ -9,7 +9,16 @@
 
 # `make`
 
-NAME := cmdow ## empty/null => autoset to name of containing folder
+NAME := cmdow ## $()/empty/null => autoset to name of containing folder
+
+# `make ...` command line flags/options
+ARCH := 32## default ARCH for compilation ([$(),...]); $()/empty/null => use CC default ARCH
+CC_DEFINES := false## provide compiler info (as `CC_...` defines) to compiling targets ('truthy'-type)
+COLOR := $(if $(or ${MAKE_TERMOUT},${MAKE_TERMERR}),true,false)## enable colorized output ('truthy'-type)
+DEBUG := false## enable compiler debug flags/options ('truthy'-type)
+STATIC := true## compile to statically linked executable ('truthy'-type)
+VERBOSE := false## verbose `make` output ('truthy'-type)
+MAKEFLAGS_debug := $(if $(findstring d,${MAKEFLAGS}),true,false)## Makefile debug output ('truthy'-type; default == false) ## NOTE: use `-d` or `MAKEFLAGS_debug=1`, `--debug[=FLAGS]` does not set MAKEFLAGS correctly (see <https://savannah.gnu.org/bugs/?func=detailitem&item_id=58341>)
 
 ####
 
@@ -42,10 +51,11 @@ endif
 
 #### Start of system configuration section. ####
 
-# * default to `clang` (fallback to `gcc`; via a portable shell test)
-CC := $(and $(filter-out default,$(origin CC)),${CC})## use any non-make defined value as default ## note: used to avoid a recursive definition of ${CC} within the the shell ${CC} presence check when determining default ${CC}
-# CC := $(or ${CC},$(subst -FOUND,,$(filter clang-FOUND,$(shell clang --version 2>&1 && echo clang-FOUND || echo))),gcc)
-CC := $(or ${CC},gcc)
+CC_default := clang## default ${CC} ([$()/empty, ...])
+
+CC := $(and $(filter-out default,$(origin CC)),${CC})## if defined, use any non-makefile defined value as default ## note: used to avoid a recursive definition of ${CC} within the the shell ${CC} presence check when determining default ${CC}
+CC := $(or ${CC},$(if $(filter clang,${CC_default}),$(subst -FOUND,,$(filter clang-FOUND,$(shell clang --version 2>&1 && echo clang-FOUND || echo))),gcc))## * for CC_default of `clang` (if `clang` missing, fallback to `gcc`; via a portable shell test)
+CC := $(or ${CC},${CC_default},gcc)
 
 CC_ID := $(lastword $(subst -,$() $(),${CC}))
 
@@ -233,15 +243,6 @@ O_${CC_ID} := obj
 
 LIBS := import32.lib cw32.lib
 endif ## `embcc32` (Borland)
-
-# `make` command line flags/options
-ARCH := 32## [$(),...]; default ARCH for compilation; $() => use CC default ARCH
-CC_DEFINES := false## provide compiler info (as `CC_...` defines) to compiling targets ('truthy'-type)
-COLOR := $(if $(or ${MAKE_TERMOUT},${MAKE_TERMERR}),true,false)## enable colorized output ('truthy'-type)
-DEBUG := false## enable compiler debug flags/options ('truthy'-type; default == false)
-STATIC := true## compile to statically linked executable ('truthy'-type; default == true)
-VERBOSE := false## verbose `make` output ('truthy'-type; default == false)
-MAKEFLAGS_debug := $(if $(findstring d,${MAKEFLAGS}),true,false)## Makefile debug output ('truthy'-type; default == false) ## NOTE: use `-d` or `MAKEFLAGS_debug=1`, `--debug[=FLAGS]` does not set MAKEFLAGS correctly (see <https://savannah.gnu.org/bugs/?func=detailitem&item_id=58341>)
 
 #### End of system configuration section. ####
 
@@ -522,7 +523,6 @@ endif
 
 ####
 
-ARCH_default := i686
 ARCH_x86 := i386 i586 i686 x86
 ARCH_x86_64 := amd64 x64 x86_64 x86_amd64
 ARCH_allowed := $(sort 32 x32 ${ARCH_x86} 64 ${ARCH_x86_64})
@@ -536,7 +536,7 @@ else ## nix
 CC_machine_raw := $(shell ${CC} ${CFLAGS_machine} 2>&1 | ${GREP} -n ".*" | ${GREP} "^1:" )
 endif
 CC_machine_raw := $(subst ${ESC}1:,$(),${ESC}${CC_machine_raw})
-CC_ARCH := $(or $(filter $(subst -, ,${CC_machine_raw}),${ARCH_x86} ${ARCH_x86_64}),${ARCH_default})
+CC_ARCH := $(or $(filter $(subst -, ,${CC_machine_raw}),${ARCH_x86} ${ARCH_x86_64}),i686)## fallback to "i686" for ${CC_ARCH} if not found from ${CC_machine_raw}
 CC_machine := $(or $(and $(filter cl bcc32,${CC_ID}),${CC_ARCH}),${CC_machine_raw})
 CC_ARCH_ID := $(if $(filter ${CC_ARCH},32 x32 ${ARCH_x86}),32,64)
 override ARCH := $(or ${ARCH},${CC_ARCH})
