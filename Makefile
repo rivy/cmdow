@@ -150,6 +150,8 @@ STRIP := $()
 ## /MT :: static linking
 ## /MTd :: static debug linking
 ## /Fd:... :: program database file name
+## /TC :: compile all SOURCE files as C
+## /TP :: compile all SOURCE files as C++
 ## /Zi :: generate complete debug information (as a *.PDB file)
 ## /Z7 :: generate complete debug information within each object file (no *.PDB file)
 ## * `link`
@@ -169,7 +171,7 @@ CFLAGS_DEBUG_true_STATIC_true := /MTd ## debug + static
 CFLAGS_DEBUG_false_STATIC_true := /MT ## release + static
 CFLAGS_VERBOSE_true := $()
 CPPFLAGS := $()
-CXXFLAGS := $()
+CXXFLAGS := /TP
 LDFLAGS := /nologo /incremental:no
 LDFLAGS_ARCH_32 := /machine:I386
 # CL version specific flags
@@ -214,7 +216,8 @@ LD_INIT_OBJ := "${CC_BASEDIR}\lib\c0x32.obj"
 CFLAGS := -q -O2 -TWC -P-c -v- -d -f- -ff- -vi -w-pro -I. -I"${CC_BASEDIR}\include"
 CFLAGS_COMPILE_ONLY := -c
 CPPFLAGS := $()
-CXXFLAGS := $()
+# -P :: compile all SOURCE files as C++ (regardless of extension)
+CXXFLAGS := -P
 # ref: <http://docs.embarcadero.com/products/rad_studio/delphiAndcpp2009/HelpUpdate2/EN/html/devwin32/ilink32_xml.html> @@ <https://archive.is/Xe4VK>
 # -q :: suppress command line banner
 # -Tpe :: targets 32-bit windows EXE
@@ -264,7 +267,7 @@ CFLAGS_COMPILE_ONLY := -c
 CFLAGS_check := --version
 CFLAGS_v := --version
 CPPFLAGS := $()
-CXXFLAGS := $()
+CXXFLAGS := -P
 # ref: <http://docs.embarcadero.com/products/rad_studio/delphiAndcpp2009/HelpUpdate2/EN/html/devwin32/ilink32_xml.html> @@ <https://archive.is/Xe4VK>
 # -q :: suppress command line banner
 # -Tpe :: targets 32-bit windows EXE
@@ -804,14 +807,14 @@ ${PROJECT_TARGET}: ${OBJ_files} ${makefile_abs_path} | ${OUT_DIR_bin}
 	@${ECHO} $(call %shell_quote,$(call %success_text,made '$@'.))
 
 ${OUT_DIR_obj}/%.${O}: ${SRC_DIR}/%.c ${makefile_abs_path} | ${OUT_DIR_obj}
-	${CC} ${CFLAGS_COMPILE_ONLY} ${CPPFLAGS} ${CFLAGS} ${CC_o}"$@" "$<"
+	${CC} ${CC_o}"$@" ${CFLAGS_COMPILE_ONLY} ${CPPFLAGS} ${CFLAGS} "$<"
 
 ${OUT_DIR_obj}/%.${O}: ${SRC_DIR}/%.cpp ${makefile_abs_path} | ${OUT_DIR_obj}
-	${CXX} ${CFLAGS_COMPILE_ONLY} ${CPPFLAGS} ${CXXFLAGS} ${CC_o}"$@" ${CFLAGS} "$<"
+	${CXX} ${CC_o}"$@" ${CFLAGS_COMPILE_ONLY} ${CPPFLAGS} ${CFLAGS} ${CXXFLAGS} "$<"
 
 ${OUT_DIR_obj}/%.${O}: ${SRC_DIR}/%.cxx ${makefile_abs_path} | ${OUT_DIR_obj}
-	${CXX} ${CFLAGS_COMPILE_ONLY} ${CPPFLAGS} ${CXXFLAGS} ${CC_o}"$@" ${CFLAGS} "$<"
-#or ${CC} ${CFLAGS_COMPILE_ONLY} ${CPPFLAGS} ${CFLAGS} ${CC_o}"$@" "$<"
+	${CXX} ${CC_o}"$@" ${CFLAGS_COMPILE_ONLY} ${CPPFLAGS} ${CFLAGS} ${CXXFLAGS} "$<"
+# or ${CC} ${CC_o}"$@" ${CFLAGS_COMPILE_ONLY} ${CPPFLAGS} ${CFLAGS} "$<"
 
 ####
 
