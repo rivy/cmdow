@@ -200,10 +200,31 @@ CC_BASEDIR := $(subst /,\,$(abspath $(firstword $(shell scoop which ${CC} 2>NUL)
 LIB_DIRS := "${CC_BASEDIR}\lib"
 LD_INIT_OBJ := "${CC_BASEDIR}\lib\c0x32.obj"
 
+# ref: BCCTool help file
+# -q :: "quiet" * suppress compiler identification banner
+# -O2 :: generate fastest possible code (optimize for speed)
+# -TWC :: specify assembler option(s) ("WC")
+# -P-c :: compile SOURCE.cpp as C++, all other extensions as C, and sets the default extension to .c
+# -d :: merge duplicate strings
+# -f- :: no floating point (avoids linking floating point libraries when not using floating point; linker errors will occur if floating point operations are used)
+# -ff- :: use strict ANSI floating point rules (disables "fast floating point" optimizations)
+# -v- :: turn off source level debugging and inline expansion on
+# -vi :: turn on inline function expansion
+# -w-pro :: disable warning "Call to function 'function' with no prototype"
 CFLAGS := -q -O2 -TWC -P-c -v- -d -f- -ff- -vi -w-pro -I. -I"${CC_BASEDIR}\include"
 CFLAGS_COMPILE_ONLY := -c
 CPPFLAGS := $()
 CXXFLAGS := $()
+# ref: <http://docs.embarcadero.com/products/rad_studio/delphiAndcpp2009/HelpUpdate2/EN/html/devwin32/ilink32_xml.html> @@ <https://archive.is/Xe4VK>
+# -q :: suppress command line banner
+# -Tpe :: targets 32-bit windows EXE
+# -v- :: disable debugging information
+# -ap :: builds 32-bit console application
+# -c :: treats case as significant in public and external symbols
+# -x :: suppress creation of a MAP file
+# -V4.0 :: specifies expected Windows version (4.0 == Windows 9x/NT+)
+# -GF:AGGRESSIVE :: aggressively trims the working set of an application when the application is idle
+# -L... :: specifies library search path
 LDFLAGS := -q -Tpe -v- -ap -c -x -V4.0 -GF:AGGRESSIVE -L${LIB_DIRS} ${LD_INIT_OBJ}
 
 CC_${CC_ID}_e := -e
@@ -227,12 +248,33 @@ CC_BASEDIR := $(subst /,\,$(abspath $(firstword $(shell scoop which ${CC} 2>NUL)
 LIB_DIRS := "${CC_BASEDIR}\lib\win32c\release";"${CC_BASEDIR}\lib\win32c\release\psdk"
 LD_INIT_OBJ := "${CC_BASEDIR}\lib\c0x32.obj"
 
+# ref: <http://docs.embarcadero.com/products/rad_studio/delphiAndcpp2009/HelpUpdate2/EN/html/devwin32/bcc32_xml.html> @@ <https://archive.is/q23nS>
+# -q :: "quiet" * suppress compiler identification banner
+# -O2 :: generate fastest possible code (optimize for speed)
+# -TWC :: specify assembler option(s) ("WC")
+# -P-c :: compile SOURCE.cpp as C++, all other extensions as C, and sets the default extension to .c
+# -d :: merge duplicate strings
+# -f- :: no floating point (avoids linking floating point libraries when not using floating point; linker errors will occur if floating point operations are used)
+# -ff- :: use strict ANSI floating point rules (disables "fast floating point" optimizations)
+# -v- :: turn off source level debugging and inline expansion on
+# -vi :: turn on inline function expansion
+# -w-pro :: disable warning "Call to function 'function' with no prototype"
 CFLAGS := -q -O2 -TWC -P-c -v- -d -f- -vi -I.
 CFLAGS_COMPILE_ONLY := -c
 CFLAGS_check := --version
 CFLAGS_v := --version
 CPPFLAGS := $()
 CXXFLAGS := $()
+# ref: <http://docs.embarcadero.com/products/rad_studio/delphiAndcpp2009/HelpUpdate2/EN/html/devwin32/ilink32_xml.html> @@ <https://archive.is/Xe4VK>
+# -q :: suppress command line banner
+# -Tpe :: targets 32-bit windows EXE
+# -v- :: disable debugging information
+# -ap :: builds 32-bit console application
+# -c :: treats case as significant in public and external symbols
+# -x :: suppress creation of a MAP file
+# -V4.0 :: specifies expected Windows version (4.0 == Windows 9x/NT+)
+# -GF:AGGRESSIVE :: aggressively trims the working set of an application when the application is idle
+# -L... :: specifies library search path
 LDFLAGS := -q -Tpe -v- -ap -c -x -V4.0 -GF:AGGRESSIVE -L${LIB_DIRS} ${LD_INIT_OBJ}
 
 CC_${CC_ID}_e := -e
