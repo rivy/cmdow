@@ -213,7 +213,8 @@ LD_INIT_OBJ := "${CC_BASEDIR}\lib\c0x32.obj"
 # -v- :: turn off source level debugging and inline expansion on
 # -vi :: turn on inline function expansion
 # -w-pro :: disable warning "Call to function 'function' with no prototype"
-CFLAGS := -q -O2 -TWC -P-c -v- -d -f- -ff- -vi -w-pro -I. -I"${CC_BASEDIR}\include"
+#*was* CFLAGS := -q -O2 -TWC -P-c -d -f- -ff- -v- -vi -w-pro -I. -I"${CC_BASEDIR}\include"
+CFLAGS := -q -O2 -P-c -d -f- -ff- -v- -vi -w-pro -I. -I"${CC_BASEDIR}\include"
 CFLAGS_COMPILE_ONLY := -c
 CPPFLAGS := $()
 # -P :: compile all SOURCE files as C++ (regardless of extension)
@@ -262,7 +263,8 @@ LD_INIT_OBJ := "${CC_BASEDIR}\lib\c0x32.obj"
 # -v- :: turn off source level debugging and inline expansion on
 # -vi :: turn on inline function expansion
 # -w-pro :: disable warning "Call to function 'function' with no prototype"
-CFLAGS := -q -O2 -TWC -P-c -v- -d -f- -vi -I.
+#*was* CFLAGS := -q -O2 -TWC -P-c -v- -d -f- -vi -I.
+CFLAGS := -q -O2 -P-c -d -f- -v- -vi -I.
 CFLAGS_COMPILE_ONLY := -c
 CFLAGS_check := --version
 CFLAGS_v := --version
