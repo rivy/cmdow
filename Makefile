@@ -26,7 +26,7 @@ NAME := cmdow## $()/empty/null => autoset to name of containing folder
 # spell-checker:ignore (shell/nix) mkdir printf rmdir uname
 # spell-checker:ignore (shell/win) COMSPEC SystemDrive SystemRoot findstr findstring mkdir windir
 # spell-checker:ignore (utils) goawk ilink
-# spell-checker:ignore (vars) CFLAGS CPPFLAGS CXXFLAGS DEFINETYPE EXEEXT LDFLAGS LIBPATH LIBs MAKEDIR OBJ_deps OBJs OSID PAREN devnull falsey fileset globset globsets punct truthy
+# spell-checker:ignore (vars) CFLAGS CPPFLAGS CXXFLAGS DEFINETYPE EXEEXT LDFLAGS LIBPATH LIBs MAKEDIR OBJ_deps OBJs OSID PAREN devnull falsey fileset filesets globset globsets punct truthy
 
 ####
 
@@ -66,6 +66,8 @@ CC := $(or ${CC},${CC_default},gcc)
 CC_ID := $(lastword $(subst -,$() $(),${CC}))
 
 #### * Compiler configuration
+
+OUT_obj_filesets := $()## union of all compiler intermediate build file globsets (space-separated)
 
 ifeq (,$(filter-out clang gcc,${CC_ID}))
 ## `clang` or `gcc`
@@ -130,6 +132,7 @@ LIBS := $(foreach lib,${LIBS},-l${lib})
 # # LDFLAGS_dynamic := -fpie
 # endif
 endif ## `clang` or `gcc`
+OUT_obj_filesets := ${OUT_obj_filesets} $() *.o## `clang`/`gcc` intermediate files
 
 ifeq (cl,${CC_ID})
 ## `cl` (MSVC)
@@ -194,6 +197,7 @@ O_${CC_ID} := obj
 
 LIBS := $(foreach lib,${LIBS},${lib}.lib)
 endif ## `cl` (MSVC)
+OUT_obj_filesets := ${OUT_obj_filesets} $() *.obj## `cl` intermediate files
 
 ifeq (bcc32,${CC_ID})
 ## `bcc32` (Borland C++ 5.5.1 free command line tools)
@@ -244,6 +248,7 @@ O_${CC_ID} := obj
 
 LIBS := import32.lib cw32.lib
 endif ## `bcc32` (Borland)
+OUT_obj_filesets := ${OUT_obj_filesets} $() *.obj *.ilc *.ild *.ilf *.ils *.tds## `bcc32` intermediate files
 
 ifeq (embcc32,${CC_ID})
 ## `embcc32` (Embarcadero Borland C++ free command line tools)
@@ -295,6 +300,7 @@ O_${CC_ID} := obj
 
 LIBS := import32.lib cw32.lib
 endif ## `embcc32` (Borland)
+OUT_obj_filesets := ${OUT_obj_filesets} $() *.obj *.ilc *.ild *.ilf *.ils *.tds## `embcc32` intermediate files
 
 #### End of system configuration section. ####
 
