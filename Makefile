@@ -9,7 +9,7 @@
 
 # `make`
 
-NAME := cmdow ## $()/empty/null => autoset to name of containing folder
+NAME := cmdow## $()/empty/null => autoset to name of containing folder
 
 # `make ...` command line flags/options
 ARCH := 32## default ARCH for compilation ([$(),...]); $()/empty/null => use CC default ARCH
@@ -36,6 +36,10 @@ MAKEFLAGS_debug := $(if $(findstring d,${MAKEFLAGS}),true,false)## Makefile debu
 # spell-checker:ignore (shell/win) COMSPEC SystemDrive SystemRoot findstr findstring mkdir windir
 # spell-checker:ignore (utils) goawk ilink
 # spell-checker:ignore (vars) CFLAGS CPPFLAGS CXXFLAGS DEFINETYPE EXEEXT LDFLAGS LIBPATH LIBs MAKEDIR OBJ_deps OBJs OSID PAREN devnull falsey fileset globset globsets punct truthy
+
+####
+
+LIBS := advapi32 shell32 user32## list of any additional required libraries (space separated)
 
 ####
 
@@ -112,10 +116,9 @@ LDFLAGS_DEBUG_false := -Xlinker --strip-all
 # LDFLAGS_STATIC_true := -static -static-libgcc -static-libstdc++
 LDFLAGS_STATIC_true := -static
 LDFLAGS_clang_nix := -lstdc++
-LDFLAGS_clang_win := -ladvapi32 -lshell32 -luser32
 LDFLAGS_gcc := -lstdc++
 
-LIBS := $()
+LIBS := $(foreach lib,${LIBS},-l${lib})
 
 # ifeq ($(CC),clang)
 # LDFLAGS_dynamic := -Wl,-nodefaultlib:libcmt -lmsvcrt # only works for MSVC targets
@@ -187,7 +190,7 @@ LD_${CC_ID}_o := /out:
 
 O_${CC_ID} := obj
 
-LIBS := advapi32.lib shell32.lib user32.lib
+LIBS := $(foreach lib,${LIBS},${lib}.lib)
 endif ## `cl` (MSVC)
 
 ifeq (bcc32,${CC_ID})
