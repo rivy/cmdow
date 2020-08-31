@@ -1,6 +1,6 @@
 //#ifdef _MERGE_RDATA_
 #define WIN32_LEAN_AND_MEAN     // Exclude rarely-used stuff from Windows headers
-#define _WIN32_WINNT 0x0500
+#define _WIN32_WINNT 0x0500     // Minimum windows target == Windows 2000+; ref: <https://docs.microsoft.com/en-us/cpp/porting/modifying-winver-and-win32-winnt> @@ <https://archive.is/0tI6Q>
 
 #include <windows.h>
 #include <stdio.h>
