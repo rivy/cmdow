@@ -111,7 +111,6 @@ int main(int argc, char* argv[])
             // GetWindowList also loads the info for each window
             //
             GetWindowList(&wlist);
-            found = FALSE;
             w = &wlist;
             HWND me = GetMyHandle(); // don't match self (use @ for that)
             int len = lstrlen(args.caption);
