@@ -13,7 +13,7 @@ NAME := cmdow## $()/empty/null => autoset to name of containing folder
 
 ####
 
-# spell-checker:ignore () brac cmdbuf forwback funcs ifile lessecho lesskey linenum lsystem optfunc opttbl scrsize ttyin
+# spell-checker:ignore () advapi cmdow
 
 # spell-checker:ignore (targets) realclean vclean veryclean
 # spell-checker:ignore (make) CURDIR MAKEFLAGS SHELLSTATUS TERMERR TERMOUT abspath addprefix addsuffix endef eval findstring firstword gmake ifeq ifneq lastword notdir patsubst prepend undefine wordlist
