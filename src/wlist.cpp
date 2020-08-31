@@ -360,10 +360,10 @@ void SetFGWindow(HWND hwnd)
 //
 // Maximize window, if window hidden it will unhide itself, if disabled, stays disabled
 //
-void MaxWin(struct WLIST *w, struct ARGS *a)
+void MaxWin(struct WLIST *w, struct ARGS *_a)
 {
     HWND tmp;
-
+    (void)_a; // avoid "never used" warning
     //
     // just in case maximized window gets focus, activate window that had focus
     //
@@ -375,9 +375,10 @@ void MaxWin(struct WLIST *w, struct ARGS *a)
 //
 // Minimize window, if window hidden it will become visible, if disabled, stays disabled
 //
-void MinWin(struct WLIST *w, struct ARGS *a)
+void MinWin(struct WLIST *w, struct ARGS *_a)
 {
     HWND tmp;
+    (void)_a; // avoid "never used" warning
     //
     // just in case maximized window gets focus, activate window that had focus
     //
@@ -389,9 +390,10 @@ void MinWin(struct WLIST *w, struct ARGS *a)
 //
 // Restore
 //
-void ResWin(struct WLIST *w, struct ARGS *a)
+void ResWin(struct WLIST *w, struct ARGS *_a)
 {
     HWND tmp;
+    (void)_a; // avoid "never used" warning
     tmp = GetForegroundWindow();
     // if was min, then res may make it active
     // win was max, then min - then res will max it, res again will restore it
@@ -402,16 +404,18 @@ void ResWin(struct WLIST *w, struct ARGS *a)
 //
 // Activate the window, if window is hidden, it gets focus but stays hidden,
 //
-void ActWin(struct WLIST *w, struct ARGS *a)
+void ActWin(struct WLIST *w, struct ARGS *_a)
 {
+    (void)_a; // avoid "never used" warning
     SetFGWindow(w->hwnd);
 }
 
 //
 // Inactivate window
 //
-void InaWin(struct WLIST *w, struct ARGS *a)
+void InaWin(struct WLIST *w, struct ARGS *_a)
 {
+    (void)_a; // avoid "never used" warning
     //
     // only activate another window if specified window actually has focus
     //
@@ -422,49 +426,55 @@ void InaWin(struct WLIST *w, struct ARGS *a)
 //
 // Enable window
 //
-void EnaWin(struct WLIST *w, struct ARGS *a)
+void EnaWin(struct WLIST *w, struct ARGS *_a)
 {
+    (void)_a; // avoid "never used" warning
     EnableWindow(w->hwnd, TRUE);
 }
 
 //
 // Disable window
 //
-void DisWin(struct WLIST *w, struct ARGS *a)
+void DisWin(struct WLIST *w, struct ARGS *_a)
 {
+    (void)_a; // avoid "never used" warning
     EnableWindow(w->hwnd, FALSE);
 }
 
 //
 // Hide the window
 //
-void HidWin(struct WLIST *w, struct ARGS *a)
+void HidWin(struct WLIST *w, struct ARGS *_a)
 {
+    (void)_a; // avoid "never used" warning
     ShowWindowAsync(w->hwnd, SW_HIDE);
 }
 
 //
 // Make the window visible
 //
-void VisWin(struct WLIST *w, struct ARGS *a)
+void VisWin(struct WLIST *w, struct ARGS *_a)
 {
+    (void)_a; // avoid "never used" warning
     ShowWindowAsync(w->hwnd, SW_SHOW);
 }
 
 //
 // politely ask the window to close
 //
-void ClsWin(struct WLIST *w, struct ARGS *a)
+void ClsWin(struct WLIST *w, struct ARGS *_a)
 {
+    (void)_a; // avoid "never used" warning
     PostMessage(w->hwnd, WM_CLOSE, 0, 0);
 }
 
 //
 // End process associated with window (all windows with same Pid are killed!!!
 //
-void EndWin(struct WLIST *w, struct ARGS *a)
+void EndWin(struct WLIST *w, struct ARGS *_a)
 {
     HANDLE hProcess;
+    (void)_a; // avoid "never used" warning
 
     hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, w->pid);
     if (hProcess) {
@@ -578,7 +588,7 @@ void SizWin(struct WLIST *w, struct ARGS *a)
 //
 // Run
 //
-void RunWin(struct WLIST *w, struct ARGS *a)
+void RunWin(struct WLIST *_w, struct ARGS *a)
 {
     #define SHELLEXEC_SUCCESS 33
     int RetVal;
@@ -616,6 +626,7 @@ void RunWin(struct WLIST *w, struct ARGS *a)
     CloseHandle(pi.hProcess);
     CloseHandle(pi.hThread);*/
 //  printf("file [%s], params [%s]\n", a->file, a->params);
+    (void)_w; // avoid "never used" warning
 
     RetVal = (int) ShellExecute(NULL, NULL, a->file, a->params, NULL, a->sw_state);
     if(RetVal < SHELLEXEC_SUCCESS) Quit(EXEERR);
@@ -681,15 +692,17 @@ void AltTab(void)
 
 }
 
-void TopWin(struct WLIST *w, struct ARGS *a)
+void TopWin(struct WLIST *w, struct ARGS *_a)
 {
+    (void)_a; // avoid "never used" warning
     SetWindowPos(w->hwnd, HWND_TOPMOST, 0, 0, 0, 0,
         SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE
     );
 }
 
-void NotWin(struct WLIST *w, struct ARGS *a)
+void NotWin(struct WLIST *w, struct ARGS *_a)
 {
+    (void)_a; // avoid "never used" warning
     SetWindowPos(w->hwnd, HWND_NOTOPMOST, 0, 0, 0, 0,
         SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE
     );
