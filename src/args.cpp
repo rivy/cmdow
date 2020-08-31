@@ -342,7 +342,7 @@ char *GetArgs()
         //
         while(*ArgvPos && ((' ' == *ArgvPos) || ('\t' == *ArgvPos)) ) ++ArgvPos;
 
-        if(0 == *ArgvPos) return Argv;
+        if(0 == *ArgvPos) break;
 
         //
         // now work through any quotes, copying every third quote
@@ -357,7 +357,7 @@ char *GetArgs()
             }
         }
 
-        if(0 == *ArgvPos) return Argv;
+        if(0 == *ArgvPos) break;
 
         //
         // now work through the argument, copying to Argv
