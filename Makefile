@@ -11,15 +11,6 @@
 
 NAME := cmdow## $()/empty/null => autoset to name of containing folder
 
-# `make ...` command line flags/options
-ARCH := 32## default ARCH for compilation ([$(),...]); $()/empty/null => use CC default ARCH
-CC_DEFINES := false## provide compiler info (as `CC_...` defines) to compiling targets ('truthy'-type)
-COLOR := $(if $(or ${MAKE_TERMOUT},${MAKE_TERMERR}),true,false)## enable colorized output ('truthy'-type)
-DEBUG := false## enable compiler debug flags/options ('truthy'-type)
-STATIC := true## compile to statically linked executable ('truthy'-type)
-VERBOSE := false## verbose `make` output ('truthy'-type)
-MAKEFLAGS_debug := $(if $(findstring d,${MAKEFLAGS}),true,false)## Makefile debug output ('truthy'-type; default == false) ## NOTE: use `-d` or `MAKEFLAGS_debug=1`, `--debug[=FLAGS]` does not set MAKEFLAGS correctly (see <https://savannah.gnu.org/bugs/?func=detailitem&item_id=58341>)
-
 ####
 
 # spell-checker:ignore () brac cmdbuf forwback funcs ifile lessecho lesskey linenum lsystem optfunc opttbl scrsize ttyin
@@ -40,6 +31,17 @@ MAKEFLAGS_debug := $(if $(findstring d,${MAKEFLAGS}),true,false)## Makefile debu
 ####
 
 LIBS := advapi32 shell32 user32## list of any additional required libraries (space separated)
+
+####
+
+# `make ...` command line flags/options
+ARCH := 32## default ARCH for compilation ([$(),...]); $()/empty/null => use CC default ARCH
+CC_DEFINES := false## provide compiler info (as `CC_...` defines) to compiling targets ('truthy'-type)
+COLOR := $(if $(or ${MAKE_TERMOUT},${MAKE_TERMERR}),true,false)## enable colorized output ('truthy'-type)
+DEBUG := false## enable compiler debug flags/options ('truthy'-type)
+STATIC := true## compile to statically linked executable ('truthy'-type)
+VERBOSE := false## verbose `make` output ('truthy'-type)
+MAKEFLAGS_debug := $(if $(findstring d,${MAKEFLAGS}),true,false)## Makefile debug output ('truthy'-type; default == false) ## NOTE: use `-d` or `MAKEFLAGS_debug=1`, `--debug[=FLAGS]` does not set MAKEFLAGS correctly (see <https://savannah.gnu.org/bugs/?func=detailitem&item_id=58341>)
 
 ####
 
