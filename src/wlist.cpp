@@ -358,7 +358,7 @@ void SetFGWindow(HWND hwnd)
 
 
 //
-// Maximize window, if window hidden it will unhide itself, if disabled, stays disabled
+// Maximize window, if window hidden it will un-hide itself, if disabled, stays disabled
 //
 void MaxWin(struct WLIST *w, struct ARGS *_a)
 {
@@ -636,7 +636,7 @@ void RunWin(struct WLIST *_w, struct ARGS *a)
 // Function: AltTab
 //
 // Synopsis: Activates taskbar window with the lowest Z order. In the event of
-//           there being no taskbar windows, the desptop is activated.
+//           there being no taskbar windows, the desktop is activated.
 //
 // Arguments: None
 //
@@ -647,7 +647,7 @@ void RunWin(struct WLIST *_w, struct ARGS *a)
 //        the lowest window, this moves to the top of the Z order, and all other
 //        move down one. If this function was to activate the next window in the
 //        Z order, then repeated calls to this function would only alternate
-//        between two windows (as happens when repeatly pressing [Alt]-[Tab])
+//        between two windows (as happens when repeatedly pressing [Alt]-[Tab])
 //
 //----------------------------------------------------------------------------
 void AltTab(void)

@@ -282,7 +282,7 @@ void Quit(const int Err)
 //       --1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
         "Memory allocation failed",                                         /* MEMERR 0 */
         "/MOV command requires left and top arguments",                     /* MOVERR 1 */
-        "/SIZ command requires width and height agrguments",                /* SIZERR 2 */
+        "/SIZ command requires width and height arguments",                 /* SIZERR 2 */
         "/REN command requires a new caption to be specified",              /* RENERR 3 */
         "Unrecognized argument(s). Use CMDOW /? for help",                  /* UNRARG 4 */
         "Incompatible argument(s). Use CMDOW /? for help",                  /* CONARG 5 */

@@ -277,7 +277,7 @@ for /f "tokens=1-2,8" %%a in ('cmdow') do (
 )
 ```
 
-Batch file to retrieve display resolution. The co-ords of the first window listed by Cmdow is the screen resolution (this window also has a level of zero which can be identifed using FOR /F):-
+Batch file to retrieve display resolution. The co-ords of the first window listed by Cmdow is the screen resolution (this window also has a level of zero which can be identified using FOR /F):-
 
 ```batch
 @echo off
@@ -302,7 +302,7 @@ cmdow /run /hid mybat arg1 "arg 2"
 Batch file to alert Administrator if the number of windows shown on the taskbar changes (as might be the case when an application or the operating system generates an error message, or may be backup software is prompting for a tape etc). Loops every 60 seconds until number of windows changes.
 
 ```batch
-@echo off&setlocal&set LAST=
+@echo off&setLocal&set LAST=
 cmdow @ /hid
 :loop
 ping 127.0.0.1 -n 61 >nul & set "THIS=0"
@@ -355,7 +355,7 @@ How can I filter on multiple window properties, for example, visible explorer.ex
 How can I disable or hide the desktop?
 
 > Running Cmdow without any options lists all windows. The window at the top of the list is the desktop window only as far Windows is concerned (and has a level of 0). However, the window that you and I know as the desktop is found at the end of the list. It will typically be the last window listed with a level of 1 (and by default its caption is "Program Manager").
-So running Cmdow "Program Manager" /hid will hide the deskop. If you have another window titled "Program Manager", then you'll need to use an alternative method. See the example scripts.
+So running Cmdow "Program Manager" /hid will hide the desktop. If you have another window titled "Program Manager", then you'll need to use an alternative method. See the example scripts.
 
 ---
 
@@ -377,7 +377,7 @@ When I use Cmdow at a command prompt or in a batch file and try to change the co
 
 How can I undo the effects of tiling, cascading or minimizing all windows?
 
-> In version 1.4.2 the /UM switch has been superseded by /UW. This new switch will undo the effect of tiling/cascading and minimizing all windows. To maintain compatability with existing scripts, the /UM switch can still be used even though it's no longer documented on Cmdow's helpscreen. /UM now has exactly the same effect as /UW.
+> In version 1.4.2 the /UM switch has been superseded by /UW. This new switch will undo the effect of tiling/cascading and minimizing all windows. To maintain compatibility with existing scripts, the /UM switch can still be used even though it's no longer documented on Cmdow's help screen. /UM now has exactly the same effect as /UW.
 
 ## Screenshots<a name="screenshots"></a>
 
@@ -400,11 +400,11 @@ Revision | Date | Changes
 1.4.8 | 2014-12-30 | Help page typos corrected. Output can handle 5-digit PIDs.
 1.4.7 | 2014-12-29 | Wildcards can now be used to filter window captions. Also now possible to perform actions on multiple windows. Handle display is extended to eight digits. Level is dynamically sized. Class name is dynamically sized. Newlines in the caption are converted to 1.4.4 | 2014-11-08 | Cmdow is now open source software released under the MIT license.
 1.4.3 | 2004-12-19 | Fixed bug where renaming the current console window would fail if the new caption title contained whitespace. Sizes are based on the entire window list, not just what is displayed. Help pages updated. Internally: Remove process name length test, as WideCharToMultiByte already restricts it. Combined multiple printfs. Substituted some if/else assignments for ternary operator.
-1.4.2 | 2003-08-18 | /UM seperseded by /UW switch. See FAQ's for details.
+1.4.2 | 2003-08-18 | /UM superseded by /UW switch. See FAQ's for details.
 1.4.1 | 2003-05-14 | Cmdow can now rename the console window that launched it. Previously the title would revert when Cmdow exited.
 1.4 | 2002-11-07 | Added /TOP and /NOT options to allow the setting/clearing of windows 'always on top'. Fixed argument parsing bug for /MOV and /REN options.
 1.3 | 2002-11-20 | Added /FS and /WM options to allow switching between full screen mode and window mode.
-1.2 | 2002-10-29 | Fixed issue caused when conole windows have no title. Enhance /AT feature to restore an activated window if it was minimized.
+1.2 | 2002-10-29 | Fixed issue caused when console windows have no title. Enhance /AT feature to restore an activated window if it was minimized.
 1.1 | 2002-02-25 | Added /RUN command.
 1.0 | 2001-12-20 | Cmdow created.
 

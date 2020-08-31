@@ -130,7 +130,7 @@ printf(
         "  /ENA    Enables the specified window (allowing user interaction).\n"
         "  /DIS    Disables the specified window. A disabled window will continue to run\n"
         "          as usual, although it will not accept user input until it is enabled.\n"
-        "  /VIS    Unhides the specified window (make it visible).\n"
+        "  /VIS    Un-hides the specified window (make it visible).\n"
         "  /HID    Hides the specified window. Although a hidden window will not be\n"
         "          shown on the taskbar, it will still run and may be unhidden later.\n");
         printf(
@@ -282,7 +282,7 @@ printf(
         printf(
         "  /ACT    Activate specified window.    /INA    Inactivate specified window.\n"
         "  /ENA    Enable specified window.      /DIS    Disable specified window.\n"
-        "  /VIS    Unhide specified window.      /HID    Hide specified window.\n"
+        "  /VIS    Un-hide specified window.     /HID    Hide specified window.\n"
         "  /MIN    Minimize specified window.    /MAX    Maximize specified window.\n"
         "  /RES    Restore specified window.     /REN    Rename specified window.\n"
         "  /TOP    Make window always on top.    /NOT    Make window not always on top.\n"

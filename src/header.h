@@ -24,7 +24,7 @@
 /* Error messages */
 #define MEMERR      0       /* Memory allocation failed */
 #define MOVERR      1       /* /MOV command requires left and top arguments */
-#define SIZERR      2       /* /SIZ command requires width and height agrguments */
+#define SIZERR      2       /* /SIZ command requires width and height arguments */
 #define RENERR      3       /* /REN command requires a new caption to be specified */
 #define UNRARG      4       /* Unrecognized argument(s). Use CMDOW /? for help */
 #define CONARG      5       /* Conflicting argument(s). Use CMDOW /? for help */
