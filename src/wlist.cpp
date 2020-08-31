@@ -20,8 +20,28 @@ static int   len_begin;
 //----------------------------------------------------------------------------
 HWND GetMyHandle(void)
 {
+#if defined(__BORLANDC__) && __BORLANDC__ < 0x0600
+    // older C/C++ compilers (eg, bcc) don't have `GetConsoleWindow()`; use a window title search
+    // ref: <https://support.microsoft.com/en-us/help/124103/how-to-obtain-a-console-window-handle-hwnd> @@ <https://archive.is/E9oCu>
+    #define BUFSIZE 1024 // Buffer size for console window titles.
+    HWND hwndFound;         // This is what is returned to the caller.
+    char pszNewWindowTitle[BUFSIZE]; // contains fabricated WindowTitle
+    char pszOldWindowTitle[BUFSIZE]; // contains original WindowTitle
+
+    GetConsoleTitle(pszOldWindowTitle, BUFSIZE); // fetch current window title
+    wsprintf(pszNewWindowTitle, "%d/%d", GetTickCount(), GetCurrentProcessId()); // format a "unique" NewWindowTitle
+    SetConsoleTitle(pszNewWindowTitle); // change current window title
+
+    Sleep(40); // ensure window title has been updated via a 40ms Sleep()
+
+    hwndFound = FindWindow(NULL, pszNewWindowTitle); // search for NewWindowTitle
+    SetConsoleTitle(pszOldWindowTitle); // restore original window title
+    return(hwndFound);
+#else
     return GetConsoleWindow();
+#endif
 }
+
 
 //+---------------------------------------------------------------------------
 // Function: GetWindowList
