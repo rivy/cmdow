@@ -1,7 +1,7 @@
 # NOTE: GLOBSTAR syntax [see `git help gitignore`]
 
 # ignore generated files
-/#build
+/[#$_.]build
 
 # ignore localized VSCode settings
 /.vscode/c_cpp_properties.json
