@@ -39,107 +39,168 @@ void ParseArgs(int argc, char *argv[], struct ARGS *a)
     // grab every arg and push onto task queue/set options
     //
     for(i=1;i<argc;++i) {
-        if(!lstrcmpi("/?", argv[i])) {
-            //
-            // see if user wants help on particular command
-            //
-            if(argc != 2) LoadString(&a->helpcmd, argv[++i]);
-            PushTask(a->tasks, HELP);
-            return;
-        }
-        else if(!lstrcmpi("/B", argv[i])) a->listopts |= BARE;
-        else if(!lstrcmpi("/F", argv[i])) a->listopts |= FULLCAPT;
-        else if(!lstrcmpi("/P", argv[i])) a->listopts |= SHOWPOS;
-        else if(!lstrcmpi("/T", argv[i])) a->listopts |= SHOWTB;
-        else if(!lstrcmpi("/CW", argv[i])) PushTask(a->tasks, CW);
-        else if(!lstrcmpi("/TV", argv[i])) PushTask(a->tasks, TV);
-        else if(!lstrcmpi("/TH", argv[i])) PushTask(a->tasks, TH);
-        else if(!lstrcmpi("/MA", argv[i])) PushTask(a->tasks, MA);
-        else if(!lstrcmpi("/UM", argv[i])) PushTask(a->tasks, UW); // maintain /um for compatability with old scripts
-        else if(!lstrcmpi("/UW", argv[i])) PushTask(a->tasks, UW);
-        else if(!lstrcmpi("/AT", argv[i])) PushTask(a->tasks, AT);
-        else if(!lstrcmpi("/FS", argv[i])) PushTask(a->tasks, FS);
-        else if(!lstrcmpi("/WM", argv[i])) PushTask(a->tasks, WM);
-        else if(!lstrcmpi("/DBM", argv[i])) a->actopts |= DONTBLAMEME;
-        else if(!lstrcmpi("/MIN", argv[i])) PushTask(a->tasks, MIN);
-        else if(!lstrcmpi("/MAX", argv[i])) PushTask(a->tasks, MAX);
-        else if(!lstrcmpi("/RES", argv[i])) PushTask(a->tasks, RES);
-        else if(!lstrcmpi("/ACT", argv[i])) PushTask(a->tasks, ACT);
-        else if(!lstrcmpi("/INA", argv[i])) PushTask(a->tasks, INA);
-        else if(!lstrcmpi("/ENA", argv[i])) PushTask(a->tasks, ENA);
-        else if(!lstrcmpi("/DIS", argv[i])) PushTask(a->tasks, DIS);
-        else if(!lstrcmpi("/HID", argv[i])) PushTask(a->tasks, HID);
-        else if(!lstrcmpi("/VIS", argv[i])) PushTask(a->tasks, VIS);
-        else if(!lstrcmpi("/END", argv[i])) PushTask(a->tasks, END);
-        else if(!lstrcmpi("/CLS", argv[i])) PushTask(a->tasks, CLS);
-        else if(!lstrcmpi("/TOP", argv[i])) PushTask(a->tasks, TOP);
-        else if(!lstrcmpi("/NOT", argv[i])) PushTask(a->tasks, NOT);
-        else if(!lstrcmpi("/MOV", argv[i])) {
-            PushTask(a->tasks, MOV);
-            //
-            // next two args MUST be the new left and top coords
-            //
-            if( (i+2) < argc) {
-                a->left = atoi(argv[++i]);
-                a->top = atoi(argv[++i]);
-                if( (!a->left) && lstrcmp(argv[i-1], "0") ) Quit(MOVERR);
-                if( (!a->top) && lstrcmp(argv[i], "0") ) Quit(MOVERR);
+        if (('/' == argv[i][0]) || ('-' == argv[i][0]))
+        {
+            if (!lstrcmpi("?", argv[i]+1))
+            {
+                //
+                // see if user wants help on particular command
+                //
+                if (argc != 2)
+                    LoadString(&a->helpcmd, argv[++i]);
+                PushTask(a->tasks, HELP);
+                return;
+            }
+            else if (!lstrcmpi("B", argv[i]+1))
+                a->listopts |= BARE;
+            else if (!lstrcmpi("F", argv[i]+1))
+                a->listopts |= FULLCAPT;
+            else if (!lstrcmpi("P", argv[i]+1))
+                a->listopts |= SHOWPOS;
+            else if (!lstrcmpi("T", argv[i]+1))
+                a->listopts |= SHOWTB;
+            else if (!lstrcmpi("CW", argv[i]+1))
+                PushTask(a->tasks, CW);
+            else if (!lstrcmpi("TV", argv[i]+1))
+                PushTask(a->tasks, TV);
+            else if (!lstrcmpi("TH", argv[i]+1))
+                PushTask(a->tasks, TH);
+            else if (!lstrcmpi("MA", argv[i]+1))
+                PushTask(a->tasks, MA);
+            else if (!lstrcmpi("UM", argv[i]+1))
+                PushTask(a->tasks, UW); // maintain /um for compatability with old scripts
+            else if (!lstrcmpi("UW", argv[i]+1))
+                PushTask(a->tasks, UW);
+            else if (!lstrcmpi("AT", argv[i]+1))
+                PushTask(a->tasks, AT);
+            else if (!lstrcmpi("FS", argv[i]+1))
+                PushTask(a->tasks, FS);
+            else if (!lstrcmpi("WM", argv[i]+1))
+                PushTask(a->tasks, WM);
+            else if (!lstrcmpi("DBM", argv[i]+1))
+                a->actopts |= DONTBLAMEME;
+            else if (!lstrcmpi("MIN", argv[i]+1))
+                PushTask(a->tasks, MIN);
+            else if (!lstrcmpi("MAX", argv[i]+1))
+                PushTask(a->tasks, MAX);
+            else if (!lstrcmpi("RES", argv[i]+1))
+                PushTask(a->tasks, RES);
+            else if (!lstrcmpi("ACT", argv[i]+1))
+                PushTask(a->tasks, ACT);
+            else if (!lstrcmpi("INA", argv[i]+1))
+                PushTask(a->tasks, INA);
+            else if (!lstrcmpi("ENA", argv[i]+1))
+                PushTask(a->tasks, ENA);
+            else if (!lstrcmpi("DIS", argv[i]+1))
+                PushTask(a->tasks, DIS);
+            else if (!lstrcmpi("HID", argv[i]+1))
+                PushTask(a->tasks, HID);
+            else if (!lstrcmpi("VIS", argv[i]+1))
+                PushTask(a->tasks, VIS);
+            else if (!lstrcmpi("END", argv[i]+1))
+                PushTask(a->tasks, END);
+            else if (!lstrcmpi("CLS", argv[i]+1))
+                PushTask(a->tasks, CLS);
+            else if (!lstrcmpi("TOP", argv[i]+1))
+                PushTask(a->tasks, TOP);
+            else if (!lstrcmpi("NOT", argv[i]+1))
+                PushTask(a->tasks, NOT);
+            else if (!lstrcmpi("MOV", argv[i]+1))
+            {
+                PushTask(a->tasks, MOV);
+                //
+                // next two args MUST be the new left and top coords
+                //
+                if ((i + 2) < argc)
+                {
+                    a->left = atoi(argv[++i]);
+                    a->top = atoi(argv[++i]);
+                    if ((!a->left) && lstrcmp(argv[i - 1], "0"))
+                        Quit(MOVERR);
+                    if ((!a->top) && lstrcmp(argv[i], "0"))
+                        Quit(MOVERR);
                 }
-            else Quit(MOVERR);
+                else
+                    Quit(MOVERR);
             }
-        else if(!lstrcmpi("/SIZ", argv[i])) {
-            //
-            // next two args MUST be the new width and height
-            //
-            PushTask(a->tasks, SIZ);
-            if( (i+2) < argc) {
-                a->width = atoi(argv[++i]);
-                a->height = atoi(argv[++i]);
-                if( (!a->width) && lstrcmp(argv[i-1], "0") ) Quit(SIZERR);
-                if( (!a->height) && lstrcmp(argv[i], "0") ) Quit(SIZERR);
+            else if (!lstrcmpi("SIZ", argv[i]+1))
+            {
+                //
+                // next two args MUST be the new width and height
+                //
+                PushTask(a->tasks, SIZ);
+                if ((i + 2) < argc)
+                {
+                    a->width = atoi(argv[++i]);
+                    a->height = atoi(argv[++i]);
+                    if ((!a->width) && lstrcmp(argv[i - 1], "0"))
+                        Quit(SIZERR);
+                    if ((!a->height) && lstrcmp(argv[i], "0"))
+                        Quit(SIZERR);
                 }
-            else Quit(SIZERR);
+                else
+                    Quit(SIZERR);
             }
-        else if(!lstrcmpi("/REN", argv[i])) {
-            //
-            // next arg MUST be the new caption
-            //
-            PushTask(a->tasks, REN);
-            if( (i+1) < argc) LoadString(&a->newcapt, argv[++i]);
-            else Quit(RENERR);
+            else if (!lstrcmpi("REN", argv[i]+1))
+            {
+                //
+                // next arg MUST be the new caption
+                //
+                PushTask(a->tasks, REN);
+                if ((i + 1) < argc)
+                    LoadString(&a->newcapt, argv[++i]);
+                else
+                    Quit(RENERR);
             }
-        else if(!lstrcmpi("/_RENAME_MYCONSOLE_WINDOW", argv[i])) {
-            //
-            // next arg MUST be the new caption
-            //
-            PushTask(a->tasks, RCW);
-            if( (i+1) < argc) LoadString(&a->newcapt, argv[++i]);
-            else Quit(RENERR);
+            else if (!lstrcmpi("_RENAME_MYCONSOLE_WINDOW", argv[i]+1))
+            {
+                //
+                // next arg MUST be the new caption
+                //
+                PushTask(a->tasks, RCW);
+                if ((i + 1) < argc)
+                    LoadString(&a->newcapt, argv[++i]);
+                else
+                    Quit(RENERR);
             }
-        else if(!lstrcmpi("/RUN", argv[i])) {
-            PushTask(a->tasks, RUN);
-            //
-            // point to next arg and see if show state has been specced
-            //
-            if( !( ( (i++) +1 ) < argc)) Quit(INCARG);
-            if(!lstrcmpi("/MIN", argv[i])) a->sw_state = SW_SHOWMINIMIZED;
-            else if(!lstrcmpi("/MAX", argv[i])) a->sw_state = SW_SHOWMAXIMIZED;
-            else if(!lstrcmpi("/HID", argv[i])) a->sw_state = SW_HIDE;
-            else --i;
-            //
-            // next arg MUST be file to open/run
-            //
-            if( (i+1) < argc) LoadString(&a->file, argv[++i]);
-            else Quit(INCARG);
-            //
-            // if anymore args, get a pointer to remainder of commandline
-            //
-            if( (i+1) < argc) {
-                LoadString(&a->params, GetRestCmdline(argv[i]));
-                i = argc; // prevent any more iterations of for loop
+            else if (!lstrcmpi("RUN", argv[i]+1))
+            {
+                PushTask(a->tasks, RUN);
+                //
+                // point to next arg and see if show state has been specced
+                //
+                if (!(((i++) + 1) < argc))
+                    Quit(INCARG);
+                if (('/' == argv[i][0]) || ('-' == argv[i][0]))
+                {
+                    if (!lstrcmpi("MIN", argv[i] + 1))
+                        a->sw_state = SW_SHOWMINIMIZED;
+                    else if (!lstrcmpi("MAX", argv[i] + 1))
+                        a->sw_state = SW_SHOWMAXIMIZED;
+                    else if (!lstrcmpi("HID", argv[i] + 1))
+                        a->sw_state = SW_HIDE;
+                }
+                else
+                    --i;
+                //
+                // next arg MUST be file to open/run
+                //
+                if ((i + 1) < argc)
+                    LoadString(&a->file, argv[++i]);
+                else
+                    Quit(INCARG);
+                //
+                // if anymore args, get a pointer to remainder of commandline
+                //
+                if ((i + 1) < argc)
+                {
+                    LoadString(&a->params, GetRestCmdline(argv[i]));
+                    i = argc; // prevent any more iterations of for loop
+                }
             }
         }
-        else {
+        else
+        {
             //
             // got this far, so assume unrecognized arg is a caption
             // keep track of how many 'unknown' args. One unknown is assumed to be a caption
