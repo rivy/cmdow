@@ -330,6 +330,9 @@ SPACE := $() $()
 %prepend = ${1} ${2}
 %length = $(words ${1})
 
+%_position_ = $(if $(findstring ${1},${2}),$(call %_position_,${1},$(wordlist 2,$(words ${2}),${2}),_ ${3}),${3})
+%position = $(words $(call %_position_,${1},${2}))
+
 %filter_map = $(strip $(foreach elem,${2},$(call ${1},${elem})))
 %map = $(foreach elem,${2},$(call ${1},${elem}))
 %uniq = $(if ${1},$(firstword ${1}) $(call %uniq,$(filter-out $(firstword ${1}),${1})))
@@ -713,6 +716,21 @@ endif
 
 ####
 
+make_ARGS := ${MAKECMDGOALS}
+has_run_target := $(findstring run,${MAKECMDGOALS})
+has_run_first := $(findstring run,$(firstword ${MAKECMDGOALS}))
+run_position := $(call %position,run,${MAKECMDGOALS})
+
+make_run_ARGS := $(if ${has_run_target},$(call %tail,$(wordlist ${run_position},$(call %length,${make_ARGS}),${make_ARGS})),)
+
+$(call %debug_var,has_run_first)
+$(call %debug_var,has_run_target)
+$(call %debug_var,run_position)
+$(call %debug_var,make_ARGS)
+$(call %debug_var,make_run_ARGS)
+
+####
+
 BUILD_DIR := ${BASEPATH}${DOLLAR}build## `${HASH}build` causes issues with OpenWatcom-v2.0 [2020-09-01]; note: 'target' is a common alternative
 SRC_DIR := ${BASEPATH}src
 
@@ -741,9 +759,20 @@ $(call %debug_var,OBJ_files)
 ####
 
 PROJECT_TARGET := ${OUT_DIR_bin}/${NAME}${EXEEXT}
-${PROJECT_TARGET}: # *default* target (see recipe/rule below)
 
 ####
+
+__default__: ${PROJECT_TARGET} # *default* target
+
+####
+phony_targets := all build clean compile help realclean rebuild run veryclean
+
+.PHONY: run
+run: ${PROJECT_TARGET} ## Build/execute project executable (`... run [ARGS]`)
+	@$(call %shell_quote,$^) ${make_run_ARGS}
+
+####
+ifeq (${false},${has_run_first})## define standard phony targets only when 'run' is not the first target (all text following 'run' is assumed to be arguments for the run; minimizes recipe duplication/overwrite warnings)
 
 .PHONY: help
 help: ## Display help
@@ -758,10 +787,6 @@ ifeq (${OSID},win)
 else
 	@${GREP} -P "(?i)^[[:alpha:]-]+:" "${makefile_path}" | ${SORT} | ${AWK} 'match($$0,"^([[:alpha:]]+):.*?${HASH}${HASH}\\s*(.*)$$",m){ printf "${color_success}%-10s${color_reset}\t${color_info}%s${color_reset}\n", m[1], m[2] }END{printf "\n"}'
 endif
-
-.PHONY: run
-run: ${PROJECT_TARGET} ## Build/execute project executable
-	@$(call %shell_quote,$^)
 
 ####
 
@@ -783,6 +808,7 @@ rebuild: clean build ## Clean and rebuild project
 vclean: veryclean
 veryclean: realclean
 
+endif ## ${has_run_first}
 ####
 
 # ref: [`make` default rules]<https://www.gnu.org/software/make/manual/html_node/Catalogue-of-Rules.html> @@ <https://archive.is/KDNbA>
@@ -806,3 +832,12 @@ ${OUT_DIR_obj}/%.${O}: ${SRC_DIR}/%.cxx ${makefile_abs_path} | ${OUT_DIR_obj}
 ####
 
 $(foreach dir,$(filter-out . ..,${out_dirs_for_rules}),$(eval $(call @mkdir_rule,${dir})))
+
+####
+
+ifeq (${true},$(call %truthy,${has_run_target}))
+ifneq (${NULL},$(if ${has_run_first},${NULL},$(filter ${phony_targets},${make_run_ARGS})))
+$(call %warning,`run` arguments duplicate (and overwrite) standard targets; try using run with arguments as a solo target (`${make_invoke_alias} run ARGS`))
+endif
+$(eval ${make_run_ARGS}:;@:)
+endif
