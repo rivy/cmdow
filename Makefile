@@ -9,7 +9,7 @@
 
 # `make`
 
-NAME := cmdow## $()/empty/null => autoset to name of containing folder
+NAME := cmdow ## $()/empty/null => autoset to name of containing folder
 
 ####
 
@@ -22,7 +22,7 @@ NAME := cmdow## $()/empty/null => autoset to name of containing folder
 # spell-checker:ignore (abbrev/acronyms) LLVM MSVC MinGW POSIX VCvars
 # spell-checker:ignore (jargon) autoset deps delims executables maint multilib
 # spell-checker:ignore (libraries) libcmt libgcc libstdc lmsvcrt lstdc stdext
-# spell-checker:ignore (names) benhoyt rivy Borland
+# spell-checker:ignore (names) benhoyt rivy Borland Watcom
 # spell-checker:ignore (shell/nix) mkdir printf rmdir uname
 # spell-checker:ignore (shell/win) COMSPEC SystemDrive SystemRoot findstr findstring mkdir windir
 # spell-checker:ignore (utils) goawk ilink
@@ -30,7 +30,7 @@ NAME := cmdow## $()/empty/null => autoset to name of containing folder
 
 ####
 
-LIBS := advapi32 shell32 user32## list of any additional required libraries (space separated)
+LIBS := advapi32 shell32 user32## list of any additional required libraries (space-separated)
 
 ####
 
@@ -67,13 +67,13 @@ CC_ID := $(lastword $(subst -,$() $(),${CC}))
 
 #### * Compiler configuration
 
-OUT_obj_filesets := $()## union of all compiler intermediate build file globsets (space-separated)
+OUT_obj_filesets := $()## a union of globsets matching all compiler intermediate build files (space-separated)
 
 ifeq (,$(filter-out clang gcc,${CC_ID}))
 ## `clang` or `gcc`
 CXX := ${CC:gcc=g}++
 LD := ${CXX}
-%link = ${LD} ${LDFLAGS} ${LD_o}${1} ${2} ${3}## $(call %link,EXE,OBJs,LIBs); requires delayed expansion
+%link = ${LD} ${LDFLAGS} ${LD_o}${1} ${2} ${3}## $(call %link,EXE,OBJs,LIBs); function => requires delayed expansion
 STRIP_CC_clang_OSID_nix := strip
 STRIP_CC_clang_OSID_win := llvm-strip
 STRIP_CC_gcc := strip
@@ -138,7 +138,7 @@ ifeq (cl,${CC_ID})
 ## `cl` (MSVC)
 CXX := ${CC}
 LD := link
-%link = ${LD} ${LDFLAGS} ${LD_o}${1} ${2} ${3}## $(call %link,EXE,OBJs,LIBs); requires delayed expansion
+%link = ${LD} ${LDFLAGS} ${LD_o}${1} ${2} ${3}## $(call %link,EXE,OBJs,LIBs); function => requires delayed expansion
 STRIP := $()
 ## ref: <https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-by-category> @@ <https://archive.is/PTPDN>
 ## /nologo :: startup without logo display
@@ -203,7 +203,7 @@ ifeq (bcc32,${CC_ID})
 ## `bcc32` (Borland C++ 5.5.1 free command line tools)
 CXX := ${CC}
 LD := ilink32
-%link = ${LD} ${LDFLAGS} $(subst /,\,${2}), $(subst /,\,${1}),,$(subst /,\,${3})## $(call %link,EXE,OBJs,LIBs); requires delayed expansion
+%link = ${LD} -I$(call %shell_quote,$(call %as_win_path,${OUT_DIR_obj})) ${LDFLAGS} $(call %as_win_path,${2}), $(call %as_win_path,${1}),,$(call %as_win_path,${3})## $(call %link,EXE,OBJs,LIBs); function => requires delayed expansion
 STRIP := $()
 
 # * find CC base directory (for include and library directories plus initialization code, as needed); note: CMD/PowerShell is assumed as `bcc32` is DOS/Windows-only
@@ -489,7 +489,7 @@ $(call %error,Missing required compiler (`${CC}`))
 endif
 
 ifeq (${SPACE},$(findstring ${SPACE},${makefile_abs_path}))
-$(call %error,<SPACE>'s within project directory may cause issues)
+$(call %error,<SPACE>'s within project directory path are not allowed)## `make` has very limited ability to quote <SPACE> characters
 endif
 
 # Since we rely on paths relative to the makefile location, abort if make isn't being run from there.
