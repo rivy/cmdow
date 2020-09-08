@@ -16,7 +16,7 @@ NAME := cmdow ## $()/empty/null => autoset to name of containing folder
 # spell-checker:ignore () advapi cmdow
 
 # spell-checker:ignore (targets) realclean vclean veryclean
-# spell-checker:ignore (make) CURDIR MAKEFLAGS SHELLSTATUS TERMERR TERMOUT abspath addprefix addsuffix endef eval findstring firstword gmake ifeq ifneq lastword notdir patsubst prepend undefine wordlist
+# spell-checker:ignore (make) BASEPATH CURDIR MAKEFLAGS SHELLSTATUS TERMERR TERMOUT abspath addprefix addsuffix endef eval findstring firstword gmake ifeq ifneq lastword notdir patsubst prepend undefine wordlist
 #
 # spell-checker:ignore (CC) DDEBUG DNDEBUG NDEBUG Ofast Werror Wextra Xclang Xlinker bcc dumpmachine embcc flto flto-visibility-public-std fpie nodefaultlib nologo nothrow psdk
 # spell-checker:ignore (abbrev/acronyms) LLVM MSVC MinGW POSIX VCvars
@@ -55,6 +55,29 @@ SystemRoot := $(or ${SystemRoot},${SYSTEMROOT},${systemroot},${windir})
 SHELL := $(firstword $(wildcard ${COMSPEC} ${SystemRoot}/System32/cmd.exe) cmd)
 endif
 
+####
+
+# require at least `make` v4.0 (minimum needed for correct path functions)
+MAKE_VERSION_major := $(word 1,$(subst ., ,${MAKE_VERSION}))
+MAKE_VERSION_minor := $(word 2,$(subst ., ,${MAKE_VERSION}))
+MAKE_VERSION_fail := $(filter ${MAKE_VERSION_major},3 2 1 0)
+ifeq (${MAKE_VERSION_major},4)
+MAKE_VERSION_fail := $(filter ${MAKE_VERSION_minor},)
+endif
+ifneq (${MAKE_VERSION_fail},)
+$(call %error,`make` v4.0+ required (currently using v${MAKE_VERSION}))
+endif
+
+makefile_path := $(lastword ${MAKEFILE_LIST})
+makefile_abs_path := $(abspath ${makefile_path})
+makefile_dir := $(abspath $(dir ${makefile_abs_path}))
+current_dir := ${CURDIR}
+
+# use ${BASEPATH} as an anchor to allow otherwise relative path specification of files
+ifneq (${makefile_dir},${current_dir})
+BASEPATH := ${makefile_dir:${current_dir}/%=%}/
+endif
+
 #### Start of system configuration section. ####
 
 CC_default := clang## default ${CC} ([$()/empty, ...])
@@ -89,7 +112,7 @@ STRIP_CC_gcc := strip
 ## -Wno-int-to-void-pointer-cast :: suppress cast to void from int warnings; ref: <https://stackoverflow.com/questions/22751762/how-to-make-compiler-not-show-int-to-void-pointer-cast-warnings>
 ## -D_CRT_SECURE_NO_WARNINGS :: compiler directive == suppress "unsafe function" compiler warning
 ## note: CFLAGS == C flags; CPPFLAGS == C PreProcessor flags; CXXFLAGS := C++ flags; ref: <https://stackoverflow.com/questions/495598/difference-between-cppflags-and-cxxflags-in-gnu-make>
-CFLAGS := -I. -pedantic-errors -Werror -Wall -Wno-comment -Wno-deprecated-declarations -D_CRT_SECURE_NO_WARNINGS
+CFLAGS = -I$(call %shell_quote,${BASEPATH}.) -pedantic-errors -Werror -Wall -Wno-comment -Wno-deprecated-declarations -D_CRT_SECURE_NO_WARNINGS## requires delayed expansion (b/c uses later %shell_quote function)
 CFLAGS_COMPILE_ONLY := -c
 CFLAGS_ARCH_32 := -m32
 CFLAGS_ARCH_64 := -m64
@@ -168,7 +191,7 @@ STRIP := $()
 ## /machine:I386 :: specify the target machine platform
 ## /subsystem:console,4.00 :: generate "Win32 character-mode" console application; 4.00 => minimum supported system is Win9x/NT; supported only by MSVC 9 (`cl` version "15xx") or less
 ## /subsystem:console,5.01 :: generate "Win32 character-mode" console application; 5.01 => minimum supported system is XP; supported by MSVC 10 (`cl` version "16xx") or later
-CFLAGS := /nologo /W3 /WX /EHsc /I "." /D "WIN32" /D "_CONSOLE" /D "_CRT_SECURE_NO_WARNINGS"
+CFLAGS = /nologo /W3 /WX /EHsc /I $(call %shell_quote,${BASEPATH}.) /D "WIN32" /D "_CONSOLE" /D "_CRT_SECURE_NO_WARNINGS"## requires delayed expansion (b/c uses later %shell_quote function)
 CFLAGS_COMPILE_ONLY := -c
 # CFLAGS_DEBUG_true = /D "DEBUG" /D "_DEBUG" /Od /Zi /Fd"${OUT_DIR_obj}/"
 CFLAGS_DEBUG_true := /D "DEBUG" /D "_DEBUG" /Od /Z7
@@ -203,13 +226,13 @@ ifeq (,$(filter-out bcc32 embcc32,${CC_ID}))
 ## `bcc32` (Borland C++ 5.5.1 free command line tools) or `embcc` (Embarcadero Borland C++ free command line tools)
 CXX := ${CC}
 LD := ilink32
-%link = ${LD} -I"$(call %as_win_path,${OUT_DIR_obj})" ${LDFLAGS} $(call %as_win_path,${2}), $(call %as_win_path,${1}),,$(call %as_win_path,${3})## $(call %link,EXE,OBJs,LIBs); function => requires delayed expansion
+%link = ${LD} -I$(call %shell_quote,$(call %as_win_path,${OUT_DIR_obj})) ${LDFLAGS} $(call %as_win_path,${2}), $(call %as_win_path,${1}),,$(call %as_win_path,${3})## $(call %link,EXE,OBJs,LIBs); function => requires delayed expansion
 STRIP := $()
 
 # * find CC base directory (for include and library directories plus initialization code, as needed); note: CMD/PowerShell is assumed as `bcc32` is DOS/Windows-only
 CC_BASEDIR := $(subst /,\,$(abspath $(firstword $(shell scoop which ${CC} 2>NUL) $(shell which ${CC} 2>NUL) $(shell where ${CC} 2>NUL))\..\..))
-LD_INIT_OBJ = "${CC_BASEDIR}\lib\c0x32.obj"## requires delayed expansion (b/c uses later %shell_quote function)
-LIB_DIRS = $(if $(filter bcc32,${CC_ID}),"${CC_BASEDIR}\lib","${CC_BASEDIR}\lib\win32c\release";"${CC_BASEDIR}\lib\win32c\release\psdk")## requires delayed expansion (b/c uses later %shell_quote function)
+LD_INIT_OBJ = $(call %shell_quote,${CC_BASEDIR}\lib\c0x32.obj)## requires delayed expansion (b/c uses later %shell_quote function)
+LIB_DIRS = $(if $(filter bcc32,${CC_ID}),$(call %shell_quote,${CC_BASEDIR}\lib),$(call %shell_quote,${CC_BASEDIR}\lib\win32c\release);$(call %shell_quote,${CC_BASEDIR}\lib\win32c\release\psdk))## requires delayed expansion (b/c uses later %shell_quote function)
 
 # ref: BCCTool help file
 # ref: <http://docs.embarcadero.com/products/rad_studio/delphiAndcpp2009/HelpUpdate2/EN/html/devwin32/bcc32_xml.html> @@ <https://archive.is/q23nS>
@@ -224,7 +247,7 @@ LIB_DIRS = $(if $(filter bcc32,${CC_ID}),"${CC_BASEDIR}\lib","${CC_BASEDIR}\lib\
 # -v- :: turn off source level debugging and inline expansion on
 # -vi :: turn on inline function expansion
 # -w-pro :: disable warning "Call to function 'function' with no prototype"
-CFLAGS = -q -P-c -d -f- $(if $(filter bcc32,${CC_ID}),-ff-,) -I. -I"${CC_BASEDIR}\include"## requires delayed expansion (b/c uses later %shell_quote function)
+CFLAGS = -q -P-c -d -f- $(if $(filter bcc32,${CC_ID}),-ff-,) -I$(call %shell_quote,${BASEPATH}.) -I$(call %shell_quote,${CC_BASEDIR}\include)## requires delayed expansion (b/c uses later %shell_quote function)
 CFLAGS_COMPILE_ONLY := -c
 CFLAGS_DEBUG_false := -D"NDEBUG" -O2 -v- -vi
 CFLAGS_DEBUG_true := -D"DEBUG" -D"_DEBUG" -Od
@@ -421,23 +444,6 @@ $(call %debug_var,MAKEFLAGS_debug)
 
 ####
 
-# require at least `make` v4.0 (minimum needed for correct path functions)
-MAKE_VERSION_major := $(word 1,$(subst ., ,${MAKE_VERSION}))
-MAKE_VERSION_minor := $(word 2,$(subst ., ,${MAKE_VERSION}))
-MAKE_VERSION_fail := $(filter ${MAKE_VERSION_major},3 2 1 0)
-ifeq (${MAKE_VERSION_major},4)
-MAKE_VERSION_fail := $(filter ${MAKE_VERSION_minor},)
-endif
-$(call %debug_var,MAKE_VERSION)
-$(call %debug_var,MAKE_VERSION_major)
-$(call %debug_var,MAKE_VERSION_minor)
-$(call %debug_var,MAKE_VERSION_fail)
-ifneq (${MAKE_VERSION_fail},)
-$(call %error,`make` v4.0+ required (currently using v${MAKE_VERSION}))
-endif
-
-####
-
 # NOTE: early configuration; must be done before ${CC_ID} (`clang`) is used as a linker (eg, during configuration)
 ifeq (${OSID},win)
 ifeq (${CC_ID},clang)
@@ -458,10 +464,21 @@ ifeq (${SPACE},$(findstring ${SPACE},${makefile_abs_path}))
 $(call %error,<SPACE>'s within project directory path are not allowed)## `make` has very limited ability to quote <SPACE> characters
 endif
 
-# Since we rely on paths relative to the makefile location, abort if make isn't being run from there.
-ifneq (${makefile_dir},${current_dir})
-$(call %error,Invalid current directory; this makefile must be invoked from the directory it resides in)
-endif
+####
+
+$(call %debug_var,MAKE_VERSION)
+$(call %debug_var,MAKE_VERSION_major)
+$(call %debug_var,MAKE_VERSION_minor)
+$(call %debug_var,MAKE_VERSION_fail)
+
+make_invoke_alias ?= $(if $(call %eq,Makefile,${makefile_path}),make,make -f "${makefile_path}")
+
+$(call %debug_var,makefile_path)
+$(call %debug_var,makefile_abs_path)
+$(call %debug_var,makefile_dir)
+$(call %debug_var,current_dir)
+$(call %debug_var,make_invoke_alias)
+$(call %debug_var,BASEPATH)
 
 ####
 
@@ -523,20 +540,6 @@ STRIP := $(or ${STRIP_CC_${CC}},${STRIP})
 # * and... ${STRIP} available? (missing in some distributions)
 STRIP := $(shell "${STRIP}" ${STRIP_check_flags} >${devnull} 2>&1 && echo ${STRIP})
 $(call %debug_var,STRIP)
-
-####
-
-makefile_path := $(lastword ${MAKEFILE_LIST})
-makefile_abs_path := $(abspath ${makefile_path})
-makefile_dir := $(abspath $(dir ${makefile_abs_path}))
-current_dir := ${CURDIR}
-make_invoke_alias ?= $(if $(call %eq,Makefile,${makefile_path}),make,make -f "${makefile_path}")
-
-$(call %debug_var,makefile_path)
-$(call %debug_var,makefile_abs_path)
-$(call %debug_var,makefile_dir)
-$(call %debug_var,current_dir)
-$(call %debug_var,current_dir)
 
 ####
 
@@ -677,21 +680,22 @@ $(call %debug_var,LDFLAGS)
 
 ####
 
-# note: work within ${CURDIR} (build directories may not yet be created)
+# note: work within ${BASEPATH} (build directories may not yet be created)
 # note: set LIB as `make` doesn't export the LIB change into `$(shell ...)` invocations
-test_file_stem := $(subst ${SPACE},_,__MAKE__${CC}_${ARCH}_${TARGET}_test__)
-test_file_cc_string := ${CC_e}${test_file_stem}${EXEEXT}
+test_file_stem := $(subst ${SPACE},_,${BASEPATH}__MAKE__${CC}_${ARCH}_${TARGET}_test__)
+test_file_cc_string := ${CC_e}$(call %shell_quote,${test_file_stem}${EXEEXT})
 test_success_text := ..TEST-COMPILE-SUCCESSFUL..
 $(call %debug_var,test_file_stem)
 $(call %debug_var,test_file_cc_string)
 ifeq (${OSID},win)
-# erase the LIB environment variable for non-`cl` compilers (specifically `clang` has issues)
+# enable LIB environment overwrite, where needed, (specifically `clang` has issues)
 test_lib_setting_win := $(if $(call %neq,cl,${CC}),set "LIB=${LIB}",set "LIB=%LIB%")
 $(call %debug_var,test_lib_setting_win)
+$(call %debug,${RM} $(call %shell_quote,${test_file_stem}${EXEEXT}) $(call %shell_quote,${test_file_stem}).*)
 # test_output := $(shell ${test_lib_setting_win} && ${ECHO} ${HASH}include ^<stdio.h^> > ${test_file_stem}.c && ${ECHO} int main(void){printf("${test_file_stem}");return 0;} >> ${test_file_stem}.c && ${CC} $(filter-out ${CFLAGS_VERBOSE_true},${CFLAGS}) ${test_file_stem}.c ${test_file_cc_string} 2>&1 && ${ECHO} ${test_success_text})
-test_output := $(shell ${test_lib_setting_win} && ${ECHO} ${HASH}include ^<stdio.h^> > ${test_file_stem}.c && ${ECHO} int main(void){printf("${test_file_stem}");return 0;} >> ${test_file_stem}.c && ${CC} $(filter-out ${CFLAGS_VERBOSE_true},${CFLAGS}) ${test_file_stem}.c ${test_file_cc_string} 2>&1 && ${ECHO} ${test_success_text}& ${RM} ${test_file_stem}${EXEEXT} ${test_file_stem}.*)
+test_output := $(shell ${test_lib_setting_win} && ${ECHO} ${HASH}include ^<stdio.h^> > $(call %shell_quote,${test_file_stem}.c) && ${ECHO} int main(void){printf("${test_file_stem}");return 0;} >> $(call %shell_quote,${test_file_stem}.c) && ${CC} $(filter-out ${CFLAGS_VERBOSE_true},${CFLAGS}) $(call %shell_quote,${test_file_stem}.c) ${test_file_cc_string} 2>&1 && ${ECHO} ${test_success_text}& ${RM} $(call %shell_quote,$(call %as_win_path,${test_file_stem}${EXEEXT})) $(call %shell_quote,$(call %as_win_path,${test_file_stem}).*))
 else
-test_output := $(shell LIB='${LIB}' && ${ECHO} '${HASH}include <stdio.h>' > ${test_file_stem}.c && ${ECHO} 'int main(void){printf("${test_file_stem}");return 0;}' >> ${test_file_stem}.c && ${CC} $(filter-out ${CFLAGS_VERBOSE_true},${CFLAGS}) ${test_file_stem}.c ${test_file_cc_string} 2>&1 && ${ECHO} ${test_success_text}; ${RM} -f ${test_file_stem}${EXEEXT} ${test_file_stem}.*)
+test_output := $(shell LIB='${LIB}' && ${ECHO} '${HASH}include <stdio.h>' > $(call %shell_quote,${test_file_stem}.c) && ${ECHO} 'int main(void){printf("${test_file_stem}");return 0;}' >> $(call %shell_quote,${test_file_stem}.c) && ${CC} $(filter-out ${CFLAGS_VERBOSE_true},${CFLAGS}) $(call %shell_quote,${test_file_stem}.c) ${test_file_cc_string} 2>&1 && ${ECHO} ${test_success_text}; ${RM} -f $(call %shell_quote,${test_file_stem}${EXEEXT}) $(call %shell_quote,${test_file_stem}).*)
 endif
 ARCH_available := $(call %is_truthy,$(findstring ${test_success_text},${test_output}))
 $(call %debug_var,.SHELLSTATUS)
@@ -709,10 +713,12 @@ endif
 
 ####
 
-BUILD_DIR := ${HASH}build
-CONFIG    := $(if $(call %is_truthy,${DEBUG}),debug,release)
+BUILD_DIR := ${BASEPATH}${DOLLAR}build## `${HASH}build` causes issues with OpenWatcom-v2.0 [2020-09-01]; note: 'target' is a common alternative
+SRC_DIR := ${BASEPATH}src
 
-SRC_DIR := src
+CONFIG := $(if $(call %is_truthy,${DEBUG}),debug,release)
+
+SRC_DIR := ${SRC_DIR:/.=}
 OUT_DIR := ${BUILD_DIR}/${OS_PREFIX}${CONFIG}$(if $(call %is_truthy,${STATIC}),,.dynamic).(${CC}@${CC_version_Mm})${OUT_DIR_EXT}
 OUT_DIR_bin := ${OUT_DIR}/bin
 OUT_DIR_obj := ${OUT_DIR}/obj
@@ -741,11 +747,11 @@ ${PROJECT_TARGET}: # *default* target (see recipe/rule below)
 
 .PHONY: help
 help: ## Display help
-	@${ECHO} $(call %shell_quote,`${make_invoke_alias}`)
-	@${ECHO} $(call %shell_quote,Usage: `${make_invoke_alias} [ARCH=..] [CC_DEFINES=..] [COLOR=..] [DEBUG=..] [STATIC=..] [TARGET=..] [VERBOSE=..] [MAKE_TARGET...]`)
-	@${ECHO} $(call %shell_quote,Builds '${PROJECT_TARGET}' within "$(current_dir)")
+	@${ECHO} $(call %shell_escape,`${make_invoke_alias}`)
+	@${ECHO} $(call %shell_escape,Usage: `${make_invoke_alias} [ARCH=..] [CC_DEFINES=..] [COLOR=..] [DEBUG=..] [STATIC=..] [TARGET=..] [VERBOSE=..] [MAKE_TARGET...]`)
+	@${ECHO} $(call %shell_escape,Builds '${PROJECT_TARGET}' within "$(current_dir)")
 	@${ECHO_newline}
-	@${ECHO} $(call %shell_quote,MAKE_TARGETs:)
+	@${ECHO} $(call %shell_escape,MAKE_TARGETs:)
 	@${ECHO_newline}
 ifeq (${OSID},win)
 	@${FINDSTR} "^[a-zA-Z-]*:.*${HASH}${HASH}" "${makefile_path}" | ${SORT} | for /f "tokens=1-2,* delims=:${HASH}" %%g in ('${MORE}') do @(@call set "t=%%g                " & @call echo ${color_success}%%t:~0,15%%${color_reset} ${color_info}%%i${color_reset})
@@ -755,17 +761,17 @@ endif
 
 .PHONY: run
 run: ${PROJECT_TARGET} ## Build/execute project executable
-	@"$^"
+	@$(call %shell_quote,$^)
 
 ####
 
 .PHONY: clean
 clean: ## Remove build artifacts (including intermediate files)
-	@$(call !shell_noop,$(call %rm_dirs_verbose,${out_dirs}))
+	@$(call !shell_noop,$(call %rm_dirs_verbose,$(call %map,%shell_quote,${out_dirs})))
 
 .PHONY: realclean
 realclean: clean ## Remove *all* build artifacts (including all configurations and the build directory)
-	@$(call !shell_noop,$(call %rm_dirs_verbose,${BUILD_DIR}))
+	@$(call !shell_noop,$(call %rm_dirs_verbose,$(call %shell_quote,${BUILD_DIR})))
 
 ####
 
@@ -783,19 +789,19 @@ veryclean: realclean
 # ref: [make ~ `eval()`](http://make.mad-scientist.net/the-eval-function) @ <https://archive.is/rpUfG>
 
 ${PROJECT_TARGET}: ${OBJ_files} ${makefile_abs_path} | ${OUT_DIR_bin}
-	$(call %link,"$@",$(addprefix ",$(addsuffix ",${OBJ_files})),${LIBS})
-	$(if $(and ${STRIP},$(call %is_falsey,${DEBUG})),${STRIP} "$@",)
-	@${ECHO} $(call %shell_quote,$(call %success_text,made '$@'.))
+	$(call %link,$(call %shell_quote,$@),$(call %map,%shell_quote,${OBJ_files}),$(call %map,%shell_quote,${LIBS}))
+	$(if $(and ${STRIP},$(call %is_falsey,${DEBUG})),${STRIP} $(call %shell_quote,$@),)
+	@${ECHO} $(call %shell_escape,$(call %success_text,made '$@'.))
 
 ${OUT_DIR_obj}/%.${O}: ${SRC_DIR}/%.c ${makefile_abs_path} | ${OUT_DIR_obj}
-	${CC} ${CC_o}"$@" ${CFLAGS_COMPILE_ONLY} ${CPPFLAGS} ${CFLAGS} "$<"
+	${CC} ${CC_o}$(call %shell_quote,$@) ${CFLAGS_COMPILE_ONLY} ${CPPFLAGS} ${CFLAGS} $(call %shell_quote,$<)
 
 ${OUT_DIR_obj}/%.${O}: ${SRC_DIR}/%.cpp ${makefile_abs_path} | ${OUT_DIR_obj}
-	${CXX} ${CC_o}"$@" ${CFLAGS_COMPILE_ONLY} ${CPPFLAGS} ${CFLAGS} ${CXXFLAGS} "$<"
+	${CXX} ${CC_o}$(call %shell_quote,$@) ${CFLAGS_COMPILE_ONLY} ${CPPFLAGS} ${CFLAGS} ${CXXFLAGS} $(call %shell_quote,$<)
 
 ${OUT_DIR_obj}/%.${O}: ${SRC_DIR}/%.cxx ${makefile_abs_path} | ${OUT_DIR_obj}
-	${CXX} ${CC_o}"$@" ${CFLAGS_COMPILE_ONLY} ${CPPFLAGS} ${CFLAGS} ${CXXFLAGS} "$<"
-# or ${CC} ${CC_o}"$@" ${CFLAGS_COMPILE_ONLY} ${CPPFLAGS} ${CFLAGS} "$<"
+	${CXX} ${CC_o}$(call %shell_quote,$@) ${CFLAGS_COMPILE_ONLY} ${CPPFLAGS} ${CFLAGS} ${CXXFLAGS} $(call %shell_quote,$<)
+# or ${CC} ${CC_o}$(call %shell_quote,$@) ${CFLAGS_COMPILE_ONLY} ${CPPFLAGS} ${CFLAGS} $(call %shell_quote,$<)
 
 ####
 
